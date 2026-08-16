@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#f4efe9">
+<title>Holly Tone & Manner — DNA Checker</title>
+<style>
+:root{
+  --bg:#f4efe9; --card:#fffdfb; --ink:#3c2d2e; --soft:#6b5a5b;
+  --lav:#ae90a7; --lilac:#b4a0c9; --pink:#e9adca; --ballet:#ebced5;
+  --wine:#78002c; --wine2:#64242e; --blue:#83c5cd; --gold:#b59e5f;
+  --line:#e4d9d2; --ok:#3f7f82; --warn:#9a7930;
+}
+*{box-sizing:border-box}
+body{
+  margin:0; min-height:100vh; padding:34px 16px 70px;
+  color:var(--ink); background:var(--bg);
+  background-image:radial-gradient(circle at 12% 8%,rgba(174,144,167,.12),transparent 38%),
+                   radial-gradient(circle at 90% 80%,rgba(131,197,205,.10),transparent 42%);
+  font-family:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif;
+}
+.wrap{max-width:760px;margin:auto}
+header{text-align:center;margin-bottom:26px}
+.eyebrow{font:600 12px/1.2 Georgia,serif;letter-spacing:.25em;color:var(--wine2);text-transform:uppercase}
+h1{font:italic 600 39px/1.05 Georgia,serif;margin:10px 0;color:var(--ink)}
+.sub{font-size:13px;line-height:1.8;color:var(--soft);margin:0 auto;max-width:610px}
+.dna{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:26px 0 18px;
+}
+.dna div{background:rgba(255,253,251,.82);border:1px solid var(--line);border-radius:14px;padding:12px 8px;text-align:center}
+.dna b{display:block;font-size:12px;margin-bottom:4px}.dna span{font-size:10.5px;color:var(--soft);line-height:1.5}
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:28px;margin:16px 0;box-shadow:0 8px 30px rgba(60,45,46,.055)}
+.section-title{font-weight:700;font-size:14px;margin-bottom:14px}
+.modes{display:flex;gap:8px;margin-bottom:18px}
+.mode{flex:1;border:1px solid var(--line);background:#fff;border-radius:999px;padding:10px;cursor:pointer;color:var(--soft);font:inherit;font-size:12px}
+.mode.active{background:var(--wine2);color:#fff;border-color:var(--wine2)}
+.dropzone{border:1.5px dashed var(--lav);border-radius:16px;padding:34px 18px;text-align:center;cursor:pointer;background:linear-gradient(180deg,rgba(174,144,167,.045),transparent)}
+.dropzone:hover{background:rgba(174,144,167,.08)}
+.dropzone p{margin:0}.dropzone .main{font-size:14px;margin:9px 0 4px}.dropzone .hint{font-size:11px;color:var(--soft)}
+input[type=file]{display:none}
+.preview{display:none;margin-top:16px;gap:12px;align-items:center}.preview.show{display:flex}
+.preview img{width:78px;height:78px;object-fit:cover;border-radius:12px;border:1px solid var(--line)}
+.name{flex:1;font-size:12px;color:var(--soft);word-break:break-all}
+.clear{border:0;background:none;text-decoration:underline;color:var(--wine2);font:inherit;font-size:11px;cursor:pointer}
+.check{width:100%;border:0;border-radius:999px;margin-top:20px;padding:14px;background:linear-gradient(135deg,var(--wine2),var(--wine));color:white;font:700 13px inherit;cursor:pointer}
+.check:disabled{opacity:.45;cursor:default}
+.loading{display:none;text-align:center;padding:18px;color:var(--soft);font-size:12px}.loading.show{display:block}
+.loading:after{content:"";display:inline-block;width:11px;height:11px;margin-left:7px;border:2px solid var(--lav);border-top-color:transparent;border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.result{display:none}.result.show{display:block}
+.scoreline{text-align:center}
+.score{font:italic 600 54px Georgia,serif}.grade{font-size:13px;font-weight:700;margin-left:7px}
+.verdict{font:italic 600 23px Georgia,serif;margin:4px 0 10px}.comment{font-size:13px;line-height:1.9;color:var(--soft);white-space:pre-wrap}
+.metrics{display:grid;gap:16px;margin-top:22px}
+.metric{display:grid;gap:7px}.mlabel{display:flex;justify-content:space-between;font-size:12px}.mlabel b{font-weight:700}.tag{font-size:10px;border-radius:999px;padding:2px 8px}.ok{background:rgba(131,197,205,.22);color:#2b6b72}.warn{background:rgba(181,158,95,.22);color:#7d6428}.ng{background:rgba(120,0,44,.11);color:var(--wine2)}
+.track{height:9px;background:#ece3de;border-radius:99px;position:relative}.safe{position:absolute;top:0;bottom:0;border-radius:99px;background:rgba(174,144,167,.28)}.marker{position:absolute;top:50%;width:15px;height:15px;border-radius:50%;transform:translate(-50%,-50%);background:var(--wine2);border:3px solid #fff;box-shadow:0 2px 6px rgba(60,45,46,.25)}
+.note{margin-top:22px;padding:14px;border-radius:14px;background:#f8f1ee;font-size:11px;line-height:1.7;color:var(--soft)}
+.gridinput{display:none}
+.grid-preview{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-top:16px}
+.grid-preview img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:7px}
+footer{text-align:center;color:var(--soft);font-size:10px;margin-top:22px}
+@media(max-width:560px){
+  body{padding:24px 12px 50px}.card{padding:20px}.dna{grid-template-columns:repeat(2,1fr)}
+  h1{font-size:34px}.sub{font-size:12px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="eyebrow">Holly Tone &amp; Manner</div>
+  <h1>Holly Tone DNA</h1>
+  <p class="sub">さっきのコラージュを「Hollyの世界観の親玉」として、色そのものではなく、明るさ・彩度・柔らかさ・色のまとまり方をチェックします。</p>
+</header>
+
+<div class="dna">
+  <div><b>☁ 明るい</b><span>淡いけれど白飛びしない</span></div>
+  <div><b>🎀 やわらかい</b><span>低〜中コントラスト</span></div>
+  <div><b>💎 ほどよく発色</b><span>くすみすぎず、ビビッドすぎない</span></div>
+  <div><b>🌙 色は自由</b><span>パレットの色そのものは強制しない</span></div>
+</div>
+
+<div class="card">
+  <div class="section-title">チェックモード</div>
+  <div class="modes">
+    <button class="mode active" data-mode="single">1枚をチェック</button>
+    <button class="mode" data-mode="grid">Instagram 9枚</button>
+  </div>
+
+  <div id="singleBox">
+    <div class="dropzone" id="dropzone">
+      <div style="font-size:25px;opacity:.65">✦</div>
+      <p class="main">画像をドロップ、またはタップして選択</p>
+      <p class="hint">サムネイル・投稿・写真・スクショなど</p>
+      <input id="fileInput" type="file" accept="image/*">
+    </div>
+    <div class="preview" id="preview">
+      <img id="previewImg" alt="">
+      <div class="name" id="previewName"></div>
+      <button class="clear" id="clear">削除</button>
+    </div>
+  </div>
+
+  <div id="gridBox" style="display:none">
+    <div class="dropzone" id="gridDrop">
+      <div style="font-size:25px;opacity:.65">✦ ✦ ✦</div>
+      <p class="main">9枚の画像をまとめて選択</p>
+      <p class="hint">Instagramのグリッドをそのままチェックできます</p>
+      <input id="gridInput" class="gridinput" type="file" accept="image/*" multiple>
+    </div>
+    <div class="grid-preview" id="gridPreview"></div>
+  </div>
+
+  <button class="check" id="check" disabled>この雰囲気をチェックする</button>
+  <div class="loading" id="loading">Holly Tone DNAと照らし合わせています</div>
+</div>
+
+<div class="card result" id="result">
+  <div class="scoreline"><span class="score" id="score">--</span><span class="grade" id="grade"></span></div>
+  <div class="verdict" id="verdict"></div>
+  <div class="comment" id="comment"></div>
+  <div class="metrics" id="metrics"></div>
+  <div class="note" id="note"></div>
+</div>
+
+<footer>外部API・Claude APIは使用しません。画像はこのブラウザ内だけで解析します。</footer>
+</div>
+
+<script>
+const META={
+  brightness:{label:"明度",min:62,max:78,desc:"明るさ。Hollyは「光が多いけれど白飛びしない」が中心。"},
+  saturation:{label:"彩度",min:30,max:58,desc:"発色の強さ。淡いが、ピンクやラベンダーの色はちゃんと残る。"},
+  contrast:{label:"コントラスト",min:28,max:52,desc:"明暗差。柔らかさを保ちつつ、締め色が存在できる範囲。"},
+  harmony:{label:"Hollyトーン",min:55,max:100,desc:"明るいパステルを土台に、ピンク・ラベンダー・ブルー・クリーム・ゴールド・ワイン等が共存できるトーンか。"}
+};
+let mode="single", files=[], singleData=null;
+
+const $=id=>document.getElementById(id);
+document.querySelectorAll(".mode").forEach(b=>b.onclick=()=>{
+  document.querySelectorAll(".mode").forEach(x=>x.classList.remove("active")); b.classList.add("active");
+  mode=b.dataset.mode; $("singleBox").style.display=mode==="single"?"block":"none"; $("gridBox").style.display=mode==="grid"?"block":"none";
+  $("check").disabled=mode==="single"?!singleData:files.length<1; $("result").classList.remove("show");
+});
+$("dropzone").onclick=()=>$("fileInput").click();
+$("fileInput").onchange=e=>setSingle(e.target.files[0]);
+["dragover","dragenter"].forEach(ev=>$("dropzone").addEventListener(ev,e=>{e.preventDefault()}));
+$("dropzone").ondrop=e=>{e.preventDefault();setSingle(e.dataTransfer.files[0])};
+function setSingle(f){
+  if(!f||!f.type.startsWith("image/"))return;
+  singleData=f; $("previewImg").src=URL.createObjectURL(f); $("previewName").textContent=f.name; $("preview").classList.add("show"); $("check").disabled=false;
+}
+$("clear").onclick=()=>{singleData=null;$("fileInput").value="";$("preview").classList.remove("show");$("check").disabled=true};
+$("gridDrop").onclick=()=>$("gridInput").click();
+$("gridInput").onchange=e=>{files=[...e.target.files].filter(f=>f.type.startsWith("image/")).slice(0,9);renderGrid();$("check").disabled=files.length<1};
+function renderGrid(){ $("gridPreview").innerHTML=""; files.forEach(f=>{let i=new Image();i.src=URL.createObjectURL(f);$("gridPreview").appendChild(i)}) }
+
+function loadImage(file){
+  return new Promise((resolve,reject)=>{
+    const img=new Image(); img.onload=()=>resolve(img); img.onerror=reject; img.src=URL.createObjectURL(file);
+  });
+}
+function analyze(img){
+  const max=420, scale=Math.min(1,max/Math.max(img.width,img.height)), w=Math.max(1,Math.round(img.width*scale)), h=Math.max(1,Math.round(img.height*scale));
+  const c=document.createElement("canvas");c.width=w;c.height=h;const x=c.getContext("2d",{willReadFrequently:true});x.drawImage(img,0,0,w,h);
+  const d=x.getImageData(0,0,w,h).data; let sumL=0,sumS=0,sumL2=0, vivid=0, dark=0, light=0;
+  // weighted RGB statistics; warm/cool is intentionally NOT used.
+  for(let i=0;i<d.length;i+=4){
+    let r=d[i]/255,g=d[i+1]/255,b=d[i+2]/255;
+    let mx=Math.max(r,g,b),mn=Math.min(r,g,b), l=(mx+mn)/2;
+    let s=mx===mn?0:(mx-mn)/(1-Math.abs(2*l-1));
+    if(!isFinite(s))s=0;
+    sumL+=l;sumS+=s;sumL2+=l*l;
+    if(l<.18)dark++; if(l>.93)light++; if(s>.78 && l>.18 && l<.9)vivid++;
+  }
+  const n=d.length/4, meanL=sumL/n, meanS=sumS/n;
+  const variance=Math.max(0,sumL2/n-meanL*meanL), sd=Math.sqrt(variance);
+  const brightness=Math.round(meanL*100);
+  const saturation=Math.round(meanS*100);
+  // Contrast is estimated from luminance spread, but extreme black/white pixels add a penalty.
+  let contrast=Math.round(Math.min(100,sd*220 + (dark/n)*35 + (light/n)*18));
+  // Soft images can still have colored contrast; use luminance spread rather than color temperature.
+  let harmony=100;
+  if(brightness<META.brightness.min) harmony-=Math.min(35,(META.brightness.min-brightness)*1.6);
+  if(brightness>META.brightness.max) harmony-=Math.min(30,(brightness-META.brightness.max)*1.8);
+  if(saturation<META.saturation.min) harmony-=Math.min(20,(META.saturation.min-saturation)*.9);
+  if(saturation>META.saturation.max) harmony-=Math.min(30,(saturation-META.saturation.max)*1.15);
+  if(contrast<META.contrast.min) harmony-=Math.min(12,(META.contrast.min-contrast)*.6);
+  if(contrast>META.contrast.max) harmony-=Math.min(25,(contrast-META.contrast.max)*1.2);
+  if(vivid/n>.08) harmony-=Math.min(20,(vivid/n-.08)*150);
+  if(dark/n>.12) harmony-=Math.min(18,(dark/n-.12)*100);
+  harmony=Math.round(Math.max(0,Math.min(100,harmony)));
+  return {brightness,saturation,contrast,harmony};
+}
+function avg(arr){
+  const out={}; Object.keys(META).forEach(k=>out[k]=Math.round(arr.reduce((a,x)=>a+x[k],0)/arr.length)); return out;
+}
+function status(v,m){return v>=m.min&&v<=m.max?"ok":(v>=m.min-10&&v<=m.max+10?"warn":"ng")}
+function renderMetrics(m){
+  $("metrics").innerHTML="";
+  Object.keys(META).forEach(k=>{
+    const v=m[k], meta=META[k], st=status(v,meta), txt=st==="ok"?"◯ range内":st==="warn"?"△ 惜しい":"✕ range外";
+    const row=document.createElement("div");row.className="metric";
+    row.innerHTML=`<div class="mlabel"><b>${meta.label}</b><span class="tag ${st}">${txt} ${v}</span></div>
+    <div class="track"><div class="safe" style="left:${meta.min}%;width:${meta.max-meta.min}%"></div><div class="marker" style="left:${v}%"></div></div>`;
+    $("metrics").appendChild(row);
+  });
+}
+function makeComment(m,isGrid){
+  const bits=[];
+  bits.push(m.brightness>=55&&m.brightness<=82?"明るさはHollyの中心ゾーンで、淡く光のある印象です。":m.brightness<55?"少し暗めなので、露出を上げつつ白飛びしないところで止めると近づきます。":"かなり明るめなので、ハイライトを少し抑えると淡さを残したまま整います。");
+  bits.push(m.saturation>=25&&m.saturation<=65?"彩度は、色をちゃんと感じられるのにビビッドすぎない範囲です。":m.saturation<25?"少し脱色感が強いので、彩度をほんの少し戻すとコラージュの色の可愛さに近づきます。":"発色が強めです。全体の彩度を少し落とし、ポイントカラーだけ残すとまとまりやすいです。");
+  bits.push(m.contrast>=25&&m.contrast<=60?"コントラストも柔らかく、濃い色を差し込める余白があります。":m.contrast<25?"少しフラットなので、黒や濃色の締めをほんの少し残すと写真がぼやけません。":"コントラストが強めです。黒つぶれや硬い輪郭を少し緩めると世界観に寄ります。");
+  bits.push(m.harmony>=75?"色そのものを限定せず、明るさ・発色・柔らかさのバランスがHolly DNAにかなり近いです。":m.harmony>=55?"大枠はHollyの世界にいます。明るさ・彩度・コントラストのうちズレている部分だけ微調整すれば十分です。":"色相よりもまず、画面全体の明るさ・発色・柔らかさを整えると一気に近づきそうです。");
+  if(isGrid) bits.push("9枚チェックでは、個々の写真の良し悪しだけでなく、並べたときの平均トーンも見ています。");
+  return bits.join("\n");
+}
+$("check").onclick=async()=>{
+  $("loading").classList.add("show");$("check").disabled=true;$("result").classList.remove("show");
+  try{
+    let metrics, analyses=[];
+    if(mode==="single"){analyses=[analyze(await loadImage(singleData))];metrics=analyses[0]}
+    else {for(const f of files) analyses.push(analyze(await loadImage(f)));metrics=avg(analyses)}
+    const vals=[metrics.brightness,metrics.saturation,metrics.contrast,metrics.harmony];
+    // Strict scoring: 90+ should be genuinely close to the Holly collage DNA.
+    // The three core image-processing dimensions carry most of the weight.
+    const ideal={brightness:70,saturation:44,contrast:40};
+    const ranges={brightness:8,saturation:14,contrast:12};
+    const distance=(k)=>{
+      const d=Math.abs(metrics[k]-ideal[k]);
+      const r=ranges[k];
+      // Within the ideal band: gentle deduction. Outside: progressively stronger penalty.
+      return d<=r ? (d/r)*12 : 12 + Math.min(38,((d-r)/r)*38);
+    };
+    const core=100-(distance("brightness")*.38+distance("saturation")*.34+distance("contrast")*.28);
+    // Harmony is a guardrail, not a permission slip to score highly.
+    const finalScore=Math.max(0,Math.min(100,Math.round(core*.88+metrics.harmony*.12)));
+    $("score").textContent=finalScore;
+    $("grade").textContent=finalScore>=78?"◎ HOLLY":"";
+    $("verdict").textContent=finalScore>=90?"Hollyのど真ん中":finalScore>=80?"かなりHollyっぽい":finalScore>=70?"方向は合ってる、微調整":"フィードには要調整";
+    $("comment").textContent=makeComment(metrics,mode==="grid");
+    renderMetrics(metrics);
+    $("note").textContent=mode==="single"
+      ?"※ 暖かみ（色温度）は判定項目から外しています。夕方・室内灯・ゴールドなどもHollyの世界に入れられるためです。明度・彩度・コントラストを厳しめに見ています。パレットの色そのものとの一致も合否には使いません。"
+      :"※ グリッド判定は9枚の平均トーンを中心に見ています。写真の内容や服の色は自由です。";
+    $("result").classList.add("show");
+    window.scrollTo({top:$("result").offsetTop-12,behavior:"smooth"});
+  }catch(e){console.error(e);alert("画像の解析に失敗しました。別の画像でもう一度試してみてね。")}
+  finally{$("loading").classList.remove("show");$("check").disabled=mode==="single"?!singleData:files.length<1}
+};
+</script>
+</body>
+</html>
